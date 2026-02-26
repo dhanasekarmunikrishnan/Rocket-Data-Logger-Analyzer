@@ -1,0 +1,9 @@
+node_modules
+.git
+__MACOSX
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/.settings.enc
+scripts/
+*.log

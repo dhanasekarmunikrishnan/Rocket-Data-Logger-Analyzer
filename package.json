@@ -1,0 +1,24 @@
+{
+  "name": "rocket-data-logger-analyzer",
+  "version": "1.0.0",
+  "description": "Rocket Data Logger & Analyzer - Parses rocket telemetry CSV data, detects anomalies, and provides AI-powered analysis via Google Gemini",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build step needed'",
+    "generate-data": "node scripts/generateData.js"
+  },
+  "engines": {
+    "node": ">=18.x"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "fast-csv": "^5.0.2",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.0"
+  }
+}

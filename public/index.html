@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rocket Data Logger &amp; Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+  <!-- PILL SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C10.08 5.56 8.62 8.3 9.08 11.09C8.01 10.1 6.62 9.5 5.11 9.5C5.73 11.34 6.87 12.81 8.36 13.79C6.72 14.08 5.22 14.87 4 16C6.37 16.07 8.53 15.18 10.12 13.7C10.04 14.63 10 15.45 10 16C10 19 11 22 12 22C13 22 14 19 14 16C14 15.45 13.96 14.63 13.88 13.7C15.47 15.18 17.63 16.07 20 16C18.78 14.87 17.28 14.08 15.64 13.79C17.13 12.81 18.27 11.34 18.89 9.5C17.38 9.5 15.99 10.1 14.92 11.09C15.38 8.3 13.92 5.56 12 2Z"/></svg>
+    </div>
+
+    <div class="sidebar-nav">
+      <button class="nav-btn active" data-view="dashboard" data-tooltip="Dashboard" onclick="switchView('dashboard')">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      </button>
+      <button class="nav-btn" data-view="telemetry" data-tooltip="Telemetry Explorer" onclick="switchView('telemetry')">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </button>
+      <button class="nav-btn" data-view="anomalies" data-tooltip="Anomaly Detection" onclick="switchView('anomalies')">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="nav-badge" id="anomaly-badge">0</span>
+      </button>
+      <button class="nav-btn" data-view="analysis" data-tooltip="Deep Analysis" onclick="switchView('analysis')">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+      </button>
+      <button class="nav-btn" data-view="events" data-tooltip="Anomaly Events" onclick="switchView('events')">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </button>
+      <button class="nav-btn" data-view="chatbot" data-tooltip="AI Rocket Analyst" onclick="switchView('chatbot')">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </button>
+      <button class="nav-btn" data-view="settings" data-tooltip="Settings" onclick="switchView('settings')">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+
+    <div class="sidebar-bottom">
+      <label class="nav-btn upload-trigger" for="csv-upload" data-tooltip="Upload CSV">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <input type="file" id="csv-upload" accept=".csv" onchange="uploadCSV(this)" hidden>
+      </label>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <header class="top-bar">
+      <div class="top-left">
+        <h1 id="page-title">Mission Control</h1>
+        <span class="file-badge" id="current-file">spacex_crs16_telemetry.csv</span>
+      </div>
+      <div class="top-right">
+        <div class="mission-tag">SpaceX CRS-16 &bull; Falcon 9 Block 5</div>
+        <div class="status-indicator" id="engine-status">
+          <span class="status-dot green"></span>
+          <span>System Nominal</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="view active" id="view-dashboard">
+      <div class="kpi-row" id="kpi-grid">
+        <div class="kpi-card"><div class="kpi-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="kpi-body"><span class="kpi-label">Records</span><span class="kpi-value" id="kpi-records">--</span></div></div>
+        <div class="kpi-card"><div class="kpi-icon amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div><div class="kpi-body"><span class="kpi-label">Anomalies</span><span class="kpi-value" id="kpi-anomalies">--</span></div></div>
+        <div class="kpi-card"><div class="kpi-icon red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="kpi-body"><span class="kpi-label">Critical</span><span class="kpi-value" id="kpi-critical">--</span></div></div>
+        <div class="kpi-card"><div class="kpi-icon purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div><div class="kpi-body"><span class="kpi-label">Events</span><span class="kpi-value" id="kpi-events">--</span></div></div>
+        <div class="kpi-card"><div class="kpi-icon teal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="kpi-body"><span class="kpi-label">Duration</span><span class="kpi-value" id="kpi-duration">--</span><span class="kpi-unit">seconds</span></div></div>
+        <div class="kpi-card"><div class="kpi-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></div><div class="kpi-body"><span class="kpi-label">Parameters</span><span class="kpi-value" id="kpi-params">--</span></div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card"><div class="card-head"><h3>Velocity</h3><span class="tag">m/s</span></div><div id="dash-velocity-chart" class="chart-area"></div></div>
+        <div class="card"><div class="card-head"><h3>Altitude</h3><span class="tag">km</span></div><div id="dash-altitude-chart" class="chart-area"></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-head"><h3>Dynamic Pressure (Q)</h3><span class="tag">Pa</span></div><div id="dash-q-chart" class="chart-area"></div></div>
+        <div class="card"><div class="card-head"><h3>Anomaly Distribution</h3></div><div id="dash-anomaly-chart" class="chart-area"></div></div>
+      </div>
+      <div class="card"><div class="card-head"><h3>Recent Anomaly Events</h3></div><div class="events-list" id="dash-events-list"></div></div>
+    </section>
+
+    <!-- ============ TELEMETRY ============ -->
+    <section class="view" id="view-telemetry">
+      <div class="view-toolbar">
+        <div class="param-dropdown" id="param-dropdown">
+          <button type="button" class="param-dropdown-toggle" id="param-dropdown-toggle" onclick="toggleParamDropdown()">
+            <span id="param-dropdown-label">Select Metrics</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="param-dropdown-menu" id="param-dropdown-menu"></div>
+        </div>
+        <button class="btn btn-primary" onclick="loadTelemetryChart()">Plot Selected</button>
+        <button class="btn btn-outline" onclick="plotAllParams()">Key Params</button>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <label class="range-label">Time Range: <strong id="time-range-label">0s – 528s</strong></label>
+        <div class="range-row">
+          <input type="range" id="time-start" min="0" max="528" value="0" oninput="updateTimeRange()">
+          <input type="range" id="time-end" min="0" max="528" value="528" oninput="updateTimeRange()">
+        </div>
+      </div>
+      <div class="card"><div id="telemetry-main-chart" class="chart-area chart-tall"></div></div>
+      <div class="param-cards" id="param-cards"></div>
+    </section>
+
+    <!-- ============ ANOMALIES ============ -->
+    <section class="view" id="view-anomalies">
+      <div class="view-toolbar">
+        <div class="filter-pills">
+          <button class="fpill active" onclick="filterAnomalies('all',this)">All</button>
+          <button class="fpill crit" onclick="filterAnomalies('CRITICAL',this)">Critical</button>
+          <button class="fpill warn" onclick="filterAnomalies('WARNING',this)">Warning</button>
+          <button class="fpill caut" onclick="filterAnomalies('CAUTION',this)">Caution</button>
+        </div>
+      </div>
+      <div class="kpi-row" id="anomaly-summary-bar"></div>
+      <div class="card"><div class="card-head"><h3>Anomaly Timeline</h3></div><div id="anomaly-timeline-chart" class="chart-area"></div></div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table class="data-table" id="anomaly-table">
+          <thead><tr><th>Severity</th><th>Type</th><th>Parameter</th><th>Value</th><th>Time</th><th>Description</th><th></th></tr></thead>
+          <tbody id="anomaly-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ ANALYSIS ============ -->
+    <section class="view" id="view-analysis">
+      <div class="grid-2">
+        <div class="card"><div class="card-head"><h3>Velocity vs Altitude</h3></div><div id="analysis-scatter-chart" class="chart-area"></div></div>
+        <div class="card"><div class="card-head"><h3>Acceleration Profile</h3></div><div id="analysis-accel-chart" class="chart-area"></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-head"><h3>Mach &amp; Dynamic Pressure</h3></div><div id="analysis-mach-chart" class="chart-area"></div></div>
+        <div class="card"><div class="card-head"><h3>Flight Angle (Gravity Turn)</h3></div><div id="analysis-angle-chart" class="chart-area"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Parameter Statistics</h3></div>
+        <div style="overflow-x:auto">
+          <table class="data-table" id="stats-table">
+            <thead><tr><th>Parameter</th><th>Min</th><th>Max</th><th>Mean</th><th>Std Dev</th><th>Median</th><th>Limit Low</th><th>Limit High</th><th>Status</th></tr></thead>
+            <tbody id="stats-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EVENTS ============ -->
+    <section class="view" id="view-events">
+      <div class="events-container" id="events-container"></div>
+    </section>
+
+    <!-- ============ CHATBOT ============ -->
+    <section class="view" id="view-chatbot">
+      <div class="chat-layout">
+        <!-- Chat History Sidebar -->
+        <aside class="chat-sidebar" id="chat-sidebar">
+          <div class="chat-sidebar-header">
+            <h3>History</h3>
+            <button class="btn-new-chat" onclick="ChatModule.newChat()" title="New Chat">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="chat-sessions-list" id="chat-sessions-list">
+            <div class="chat-sessions-empty">No conversations yet.<br>Start a new chat!</div>
+          </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <div class="chat-wrap">
+          <div class="chat-topbar">
+            <button class="btn-toggle-sidebar" onclick="ChatModule.toggleSidebar()" title="Toggle History">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            </button>
+            <span class="chat-topbar-title">AI Rocket Analyst</span>
+            <button class="btn-clear-chat" onclick="ChatModule.resetChat()" title="Clear current chat">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            </button>
+          </div>
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg ai">
+              <div class="msg-avatar">AI</div>
+              <div class="msg-bubble">
+                <h3>Welcome to the Rocket AI Analyst</h3>
+                <p>I analyse SpaceX CRS-16 (Falcon 9) launch telemetry. Ask me about flight data, anomalies, or request visualisations.</p>
+                <p><strong>Try asking:</strong></p>
+                <ul>
+                  <li>"Give me an overview of the flight"</li>
+                  <li>"What anomalies were detected?"</li>
+                  <li>"Show the velocity profile"</li>
+                  <li>"What happened around Max Q?"</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="chat-footer">
+            <div class="suggestions">
+              <button class="sug-btn" onclick="sendSuggestion('Give me a summary of all anomalies')">Anomaly Summary</button>
+              <button class="sug-btn" onclick="sendSuggestion('Show the velocity and altitude profile')">Velocity &amp; Altitude</button>
+              <button class="sug-btn" onclick="sendSuggestion('Show dynamic pressure around Max Q')">Max Q Analysis</button>
+              <button class="sug-btn" onclick="sendSuggestion('What are the most critical issues?')">Critical Issues</button>
+            </div>
+            <div class="chat-input-row">
+              <input type="text" id="chat-input" placeholder="Ask about telemetry, anomalies, or request charts..." onkeydown="if(event.key==='Enter')sendMessage()">
+              <button class="btn btn-primary chat-send" onclick="sendMessage()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="view" id="view-settings">
+      <div class="settings-wrap">
+        <div class="card">
+          <div class="card-head"><h3>Gemini AI API Key</h3></div>
+          <p class="card-desc">Enter your Google Gemini API key to enable full AI-powered analysis. The key is encrypted (AES-256-GCM) in memory.</p>
+          <div id="api-key-status-banner"></div>
+          <div class="field-group">
+            <label>API Key</label>
+            <div class="input-row">
+              <input type="password" class="input" id="settings-api-key" placeholder="Enter your Gemini API key..." autocomplete="off">
+              <button class="btn btn-outline" id="toggle-key-vis" onclick="SettingsModule.toggleKeyVisibility()">Show</button>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="SettingsModule.saveApiKey()">Save &amp; Activate</button>
+            <button class="btn btn-outline" onclick="SettingsModule.removeApiKey()">Remove Key</button>
+            <span class="status-text" id="settings-status"></span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>About</h3></div>
+          <p class="card-desc">Rocket Data Logger &amp; Analyzer — SpaceX CRS-16 Falcon 9 Block 5 telemetry analysis platform. AI powered by Google Gemini. Charts by ApexCharts.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/charts.js"></script>
+  <script src="js/anomaly.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

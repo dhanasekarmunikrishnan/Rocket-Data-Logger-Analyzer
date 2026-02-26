@@ -1,0 +1,10 @@
+node_modules/
+.env
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/.settings.enc
+data/uploads/
+*.log
+.DS_Store
+__MACOSX/
